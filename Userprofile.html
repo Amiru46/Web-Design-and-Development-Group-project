@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Step Form with Prompts</title>
+    <link rel="stylesheet" href="My_CSS.css">
+</head>
+<body>
+    <header>
+        <div class="header_contents">
+            <div class="logo">
+                <img src="weblogo.png" alt="Company Logo">
+            </div>
+            <div class="vl"></div>
+            <div class="title">
+                <h1>Quality Education</h1>
+                <p>United Nations Sustainable Development</p>
+                <p>Goal 4</p>
+            </div>
+        </div>
+    </header>
+    <nav class="navbar">
+        <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="shop.html" >Shop</a></li>
+        <li><a href="feedback.html">Feedback</a></li>
+        <li><a href="sitemap.html">Sitemap</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="Userprofile.html" class="active">User Profile (Sign In)</a></li>
+        </ul>
+        </nav>
+    <main>
+        <h2>User Profile</h2>
+        <hr>
+        <progress id="progressBar" max="100" value="0"></progress>
+        <button onclick="collectUserData()">Sign In</button>
+
+        <div id="userData">
+            <hr>
+            <h3>Personal data</h3>
+            <hr>
+            <div class="data-item"><strong>First Name:</strong> <span id="displayName"></span></div>
+            <div class="data-item"><strong>Last Name:</strong> <span id="displayLastName"></span></div>
+            <div class="data-item"><strong>Username:</strong> <span id="displayusername"></span></div>
+            <div class="data-item"><strong>Age:</strong> <span id="displayAge"></span></div>
+            <div class="data-item"><strong>Gender:</strong> <span id="displayGender"></span></div>
+            <hr>
+            <h3>Education level</h3>
+            <hr>
+            <div class="data-item"><strong>Highest Degree:</strong> <span id="displayDegree"></span></div>
+            <div class="data-item"><strong>Field of Study:</strong> <span id="displayField"></span></div>
+            <div class="data-item"><strong>University or School Name:</strong> <span id="displaySchool"></span></div>
+            <hr>
+            <h3>Contact information</h3>
+            <hr>
+            <div class="data-item"><strong>Email:</strong> <span id="displayEmail"></span></div>
+            <div class="data-item"><strong>Phone Number:</strong> <span id="displayPhone"></span></div>
+            <div class="data-item"><strong>Country:</strong> <span id="displayCountry"></span></div>
+            <hr>
+            <div class="data-item"><strong>Agreed to Privacy Terms:</strong> <span id="displayAgreePrivacy"></span></div>
+        </div>
+    </main>
+    <footer>
+        <div class="page-editors">
+            <h1>Page Editor</h1>
+            <ul class="editor-list">
+                <li><a href="kalana_page_editor.html" target="_blank">Student 3 : kalana</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        
+        let completedInputs = 0;
+        const totalInputs = 10; 
+    
+        async function collectUserData() {
+            document.getElementById('userData').style.display = 'block';
+
+            const name = await promptUser("What is your first name?", 'displayName');
+            if (!name) return;
+
+            const lastname = await promptUser("What is your Last Name?", 'displayLastName');
+            if (!lastname) return;
+
+            const username = await promptUser("What is your preferred username ?" , 'displayusername')
+            if (!username) return;
+
+            let age = null;
+            while (true) {
+                age = await promptUser("What is your age?", 'displayAge');
+                if (age === null) return; 
+                if (isValidAge(age)) break;
+                alert("Please enter a valid age between 0 and 100.");
+            }
+
+            showModal('genderModal');
+            const gender = await waitForGenderSelection();
+            if (!gender) return;
+
+            const degree = await promptUser("What is your highest degree?", 'displayDegree');
+            if (!degree) return;
+
+            const fieldOfStudy = await promptUser("What is your field of study?", 'displayField');
+            if (!fieldOfStudy) return;
+
+            const schoolName = await promptUser("What is the name of your university or school?", 'displaySchool');
+            if (!schoolName) return;
+
+            let email = null;
+            while (true) {
+                email = await promptUser("What is your email?", 'displayEmail');
+                if (email === null) return;
+                if (isValidEm(email)) break;
+                alert("Please enter a valid email address.")
+            }
+
+            let phoneNumber = null;
+            while (true) {
+                phoneNumber = await promptUser("What is your phone number?", 'displayPhone');
+                if (phoneNumber === null) return;
+                if (isValidPNum(phoneNumber)) break;
+                alert("Please enter a valid Phone Number.")
+            }
+
+
+            const country = await promptUser("What country do you live in?", 'displayCountry');
+            if (!country) return;
+
+            const agreed = await promptUser("Do you agree to the privacy terms? (yes/no)", 'displayAgreePrivacy');
+            if (!agreed) return;
+
+            if (agreed.toLowerCase() === 'yes') {
+                document.getElementById('displayAgreePrivacy').innerText = 'Yes';
+            } else {
+                document.getElementById('displayAgreePrivacy').innerText = 'No';
+            }
+
+            updateProgressBar(100); 
+        }
+
+        async function promptUser(message, displayElementId) {
+            const userInput = prompt(message);
+            if (userInput !== null) {
+                document.getElementById(displayElementId).innerText = userInput;
+                completedInputs++;
+                updateProgressBar((completedInputs / totalInputs) * 100);
+            }
+            return userInput;
+        }
+
+        function isValidAge(age) {
+            const ageNumber = Number(age);
+            return ageNumber >= 0 && ageNumber <= 100;
+        }
+
+        function isValidEm(email) {
+            return email.includes('@');
+        }
+
+        function isValidPNum(phoneNumber) {
+            const phonePattern = /^\d{10}$/;
+            return phonePattern.test(phoneNumber);
+        }
+
+        function updateProgressBar(value) {
+            document.getElementById('progressBar').value = value;
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        function submitGender() {
+            const gender = document.querySelector('input[name="gender"]:checked');
+            if (gender) {
+                document.getElementById('displayGender').innerText = gender.value;
+                completedInputs++;
+                updateProgressBar((completedInputs / totalInputs) * 100);
+                closeModal('genderModal');
+                resolveGenderSelection(gender.value);
+            }
+        }
+
+        function waitForGenderSelection() {
+            return new Promise((resolve) => {
+                window.resolveGenderSelection = resolve;
+            });
+        }
+    </script>
+
+
+    <div id="genderModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('genderModal')">&times;</span>
+            <h3>Select your gender</h3>
+            <label>
+                <input type="radio" name="gender" value="Male"> Male
+            </label>
+            <label>
+                <input type="radio" name="gender" value="Female"> Female
+            </label>
+            <button onclick="submitGender()">Submit</button>
+        </div>
+    </div>
+</body>
+</html>
